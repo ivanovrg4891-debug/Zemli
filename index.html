@@ -197,16 +197,34 @@ function explore(){ addLog("Ти досліджуєш територію… ні
 function showCharacter(){ addLog(`Персонаж: Герой, рівень ${character.level}, HP: ${character.hp}`); }
 
 function openInventory(){
-  let modal=document.getElementById('inventory-modal');
-  let container=document.getElementById('inventory-items');
-  container.innerHTML='';
-  character.inventory.forEach(it=>{
-    let div=document.createElement('div');
-    div.className='item';
-    div.innerHTML=`<img src='${it.img}' alt='${it.name}'>${it.name}`;
+  let modal = document.getElementById('inventory-modal');
+  let container = document.getElementById('inventory-items');
+  container.innerHTML = '';
+
+  character.inventory.forEach(it => {
+    let div = document.createElement('div');
+    div.className = 'item';
+
+    let statsText = '';
+    if(it.stats){
+      for(let key in it.stats){
+        statsText += `<div style="font-size:12px;color:#ccc;">${key}: +${it.stats[key]}</div>`;
+      }
+    }
+
+    div.innerHTML = `
+      <img src="${it.img}" alt="${it.name}">
+      <div>
+        <strong>${it.name}</strong>
+        ${statsText}
+      </div>
+    `;
+
     container.appendChild(div);
   });
-  modal.style.display='block';
+
+  modal.style.display = 'block';
+}
 }
 function closeInventory(){ document.getElementById('inventory-modal').style.display='none'; }
 
