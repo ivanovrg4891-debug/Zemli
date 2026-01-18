@@ -238,6 +238,23 @@ function changeLocation(index){
   addLog(`Ти перемістився до: ${currentLocation.name}`);
 }
 function changeLocationUI(){ openLocationModal(); }
+// === ДОДАТИ ВСІ ДРОПИ В ІНВЕНТАР НА СТАРТІ ===
+let allDrops = {};
+
+locations.forEach(location => {
+  location.mobs.forEach(mob => {
+    mob.drops.forEach(drop => {
+      if (!allDrops[drop.name]) {
+        allDrops[drop.name] = {
+          name: drop.name,
+          img: drop.img
+        };
+      }
+    });
+  });
+});
+
+character.inventory = Object.values(allDrops);  
 
 // Ініціалізація
 changeLocation(0);
