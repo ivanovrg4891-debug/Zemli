@@ -1,63 +1,120 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Самітні Землі</title>
+<style>
+body { font-family:"Courier New", monospace; background:#1b1b1b; color:#f0f0f0; margin:0; padding:0; }
+#container { display:flex; height:100vh; }
+#main { flex:2; padding:20px; background:#2c2c2c; position:relative; }
+#sidebar { flex:1; padding:20px; background:#333; }
+#location-img { width:100%; height:200px; background:#555 center/cover no-repeat; margin-bottom:10px; border:1px solid #666; }
+button { background:#444; color:#f0f0f0; border:1px solid #666; padding:10px; margin:5px; cursor:pointer; width:120px; }
+#battle-log { background:#222; height:180px; overflow-y:auto; padding:10px; margin-top:10px; border:1px solid #666; }
+h2{ margin:5px 0;} .stat{ margin:5px 0;}
+.modal { display:none; position:absolute; top:20%; left:25%; width:50%; height:50%; background:#222; border:2px solid #666; padding:20px; overflow-y:auto;}
+.modal h3 { margin-top:0; }
+.item { border:1px solid #666; padding:5px; margin:5px; display:flex; align-items:center; }
+.item img { width:40px; height:40px; margin-right:10px; }
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="main">
+    <div id="location-img"></div>
+    <h2 id="location-name"></h2>
+    <p id="location-text"></p>
+    <div>
+      <button onclick="attackMob()">🗡️ Полювання</button>
+      <button onclick="explore()">🧭 Дослідити</button>
+      <button onclick="openInventory()">🎒 Інвентар</button>
+      <button onclick="showCharacter()">👤 Персонаж</button>
+      <button onclick="openCraft()">⚒️ Крафт</button>
+      <button onclick="changeLocationUI()">🌍 Локації</button>
+      <button onclick="saveGame()">💾 Зберегти</button>
+    </div>
+    <div id="battle-log"></div>
+
+    <!-- Інвентар -->
+    <div id="inventory-modal" class="modal">
+      <h3>Інвентар</h3>
+      <div id="inventory-items"></div>
+      <button onclick="closeInventory()">Закрити</button>
+    </div>
+
+    <!-- Крафт -->
+    <div id="craft-modal" class="modal">
+      <h3>Крафт</h3>
+      <div id="craft-list"></div>
+      <button onclick="closeCraft()">Закрити</button>
+    </div>
+
+    <!-- Вибір локації -->
+    <div id="location-modal" class="modal">
+      <h3>Вибір локації</h3>
+      <div id="location-list"></div>
+      <button onclick="closeLocationModal()">Закрити</button>
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <h2>Персонаж</h2>
+    <div class="stat">Ім'я: Герой</div>
+    <div class="stat">Рівень: <span id="level">1</span></div>
+    <div class="stat">HP: <span id="hp">35</span></div>
+    <div class="stat">EXP: <span id="exp">0</span></div>
+    <div class="stat">Сила: <span id="strength">3</span></div>
+    <div class="stat">Спритність: <span id="agility">3</span></div>
+    <div class="stat">Витривалість: <span id="endurance">3</span></div>
+    <div class="stat">Удача: <span id="luck">2</span></div>
+    <div class="stat">Майстерність: <span id="mastery">2</span></div>
+  </div>
+</div>
+
 <script>
-// ---------- Character ----------
 let character = {
   hp:35,
   level:10,
   exp:0,
   baseStats:{ strength:30, agility:30, endurance:30, luck:20, mastery:20 },
-  stats:{},
+  stats:{}, 
   equipment:{ weapon:null, body:null, legs:null },
   inventory:[
-    { name:"Старий ніж", img:"images/niz0.png", type:"weapon", slot:"weapon", stats:{ damage:3, strength:1 } },
-    { name:"Потерта куртка", img:"images/Bod0.png", type:"armor", slot:"body", stats:{ armor:1, hp:5 } },
-    { name:"Диряві штани", img:"images/leg0.png", type:"armor", slot:"legs", stats:{ armor:1, agility:1, hp:2 } }
+    { name:"Старий ніж", img:"https://i.imgur.com/niz0.png", type:"weapon", slot:"weapon", stats:{ damage:3, strength:1 } },
+    { name:"Потерта куртка", img:"https://i.imgur.com/Bod0.png", type:"armor", slot:"body", stats:{ armor:1, hp:5 } },
+    { name:"Диряві штани", img:"https://i.imgur.com/leg0.png", type:"armor", slot:"legs", stats:{ armor:1, agility:1, hp:2 } }
   ]
 };
 
-// ---------- Locations ----------
 let locations = [
-  {name:"Дике Узбережжя", img:"images/loc.png", text:"Вітер з моря…", mobs:[
-    {name:"Дикий Щур", hp:18, str:2, agi:3, armor:1, exp:5, drops:[{name:"Хутро", img:"https://i.imgur.com/1SgX3sJ.png", chance:0.6}], img:"https://i.imgur.com/1SgX3sJ.png"},
-    {name:"Береговий Кабан", hp:30, str:4, agi:2, armor:1, exp:9, drops:[{name:"Мʼясо", img:"image/vepr0.png", chance:0.5}], img:"https://i.imgur.com/Q7cR6s2.png"}
+  {name:"Дике Узбережжя", img:"https://i.imgur.com/loc.png", text:"Вітер з моря несе запах солі та гнилої деревини...", mobs:[
+    {name:"Дикий Щур", hp:18, str:2, agi:3, armor:1, exp:5, drops:[{name:"Хутро", img:"https://i.imgur.com/1SgX3sJ.png", chance:0.6},{name:"Кістка", img:"https://i.imgur.com/5tXeGjB.png", chance:0.3}], img:"https://i.imgur.com/1SgX3sJ.png"},
+    {name:"Береговий Кабан", hp:30, str:4, agi:2, armor:1, exp:9, drops:[{name:"Мʼясо", img:"https://i.imgur.com/Q7cR6s2.png", chance:0.5}], img:"https://i.imgur.com/Q7cR6s2.png"},
+    {name:"Заблукалий Вовк", hp:28, str:4, agi:5, armor:1, exp:14, drops:[{name:"Зуб", img:"https://i.imgur.com/9R5tTnL.png", chance:0.25}], img:"https://i.imgur.com/9R5tTnL.png"}
   ]},
-  {name:"Руїни Стародавнього Форта", img:"https://i.imgur.com/3Lz2p1Q.png", text:"Руїни стародавнього форту…", mobs:[
+  {name:"Руїни Стародавнього Форта", img:"https://i.imgur.com/3Lz2p1Q.png", text:"Руїни стародавнього форту стоять на пагорбі...", mobs:[
     {name:"Тінь Руїн", hp:22, str:5, agi:4, armor:2, exp:20, drops:[{name:"Уламок артефакту", img:"https://i.imgur.com/2RZmL5v.png", chance:0.15}], img:"https://i.imgur.com/2RZmL5v.png"},
-    {name:"Скелет-охоронець", hp:30, str:6, agi:3, armor:3, exp:25, drops:[{name:"Кістка", img:"https://i.imgur.com/5tXeGjB.png", chance:0.6}], img:"https://i.imgur.com/1aKzS6n.png"}
+    {name:"Скелет-охоронець", hp:30, str:6, agi:3, armor:3, exp:25, drops:[{name:"Кістка", img:"https://i.imgur.com/5tXeGjB.png", chance:0.6}], img:"https://i.imgur.com/1aKzS6n.png"},
+    {name:"Дух Фортеці", hp:50, str:8, agi:5, armor:4, exp:60, drops:[{name:"Артефакт", img:"https://i.imgur.com/ZbZ6F5B.png", chance:1}], img:"https://i.imgur.com/O5b8xXJ.png", elite:true, cooldown:600000}
   ]}
 ];
 
 let currentLocation = locations[0];
 let currentMob = null;
+let eliteCooldowns = {};
 let battleLog = document.getElementById('battle-log');
 
-// ---------- Save / Load ----------
-function saveGame(){
-  const saveData = { character, currentLocationIndex: locations.indexOf(currentLocation) };
-  localStorage.setItem("lonely_lands_save", JSON.stringify(saveData));
-  addLog("💾 Гру збережено");
-}
+function addLog(text){ battleLog.innerHTML += text+'<br>'; battleLog.scrollTop=battleLog.scrollHeight; }
 
-function loadGame(){
-  const data = localStorage.getItem("lonely_lands_save");
-  if(!data) return false;
-  const save = JSON.parse(data);
-  character = save.character;
-  changeLocation(save.currentLocationIndex || 0);
-  recalcStats();
-  addLog("📂 Гру завантажено");
-  return true;
-}
-
-// ---------- Recalc Stats ----------
 function recalcStats(){
   character.stats = {...character.baseStats};
-  character.stats.hp = character.baseStats.endurance * 5 + 20;
+  character.stats.hp = character.baseStats.endurance*5+20;
   character.stats.armor = 0;
   character.stats.damage = 0;
   Object.values(character.equipment).forEach(item=>{
     if(!item || !item.stats) return;
     for(let stat in item.stats){
-      character.stats[stat] = (character.stats[stat] || 0) + item.stats[stat];
+      character.stats[stat] = (character.stats[stat]||0) + item.stats[stat];
     }
   });
   character.hp = Math.min(character.hp, character.stats.hp);
@@ -69,11 +126,32 @@ function recalcStats(){
   document.getElementById('mastery').innerText = character.stats.mastery;
 }
 
-// ---------- Combat ----------
+function saveGame(){
+  const saveData = { character, currentLocationIndex: locations.indexOf(currentLocation), eliteCooldowns };
+  localStorage.setItem("lonely_lands_save", JSON.stringify(saveData));
+  addLog("💾 Гру збережено");
+}
+
+function loadGame(){
+  const data = localStorage.getItem("lonely_lands_save");
+  if(!data) return false;
+  const save = JSON.parse(data);
+  character = save.character;
+  eliteCooldowns = save.eliteCooldowns || {};
+  changeLocation(save.currentLocationIndex || 0);
+  document.getElementById('hp').innerText = character.hp;
+  document.getElementById('level').innerText = character.level;
+  document.getElementById('exp').innerText = character.exp;
+  addLog("📂 Гру завантажено");
+  return true;
+}
+
 function chooseMob(){
   if(!currentMob || currentMob.hp<=0){
-    let availableMobs = currentLocation.mobs;
+    let availableMobs = currentLocation.mobs.filter(m=>!m.elite || (Date.now()-(eliteCooldowns[m.name]||0))>m.cooldown);
+    if(availableMobs.length==0){ addLog("Немає мобів для фарму зараз."); return; }
     currentMob = {...availableMobs[Math.floor(Math.random()*availableMobs.length)]};
+    if(currentMob.elite) eliteCooldowns[currentMob.name] = Date.now();
     addLog(`Ти зустрів ${currentMob.name}! (HP: ${currentMob.hp})`);
     document.getElementById('location-img').style.backgroundImage = `url('${currentMob.img}')`;
   }
@@ -82,100 +160,108 @@ function chooseMob(){
 function attackMob(){
   chooseMob();
   if(!currentMob) return;
-  let hitChance = 0.75 + character.stats.mastery*0.02;
+  let hitChance = 0.75 + (character.stats.mastery||0)*0.02;
   if(Math.random()>hitChance) addLog("Ти промахнувся!");
   else{
-    let damage = Math.max(1, Math.floor(character.stats.strength*(0.8+Math.random()*0.4) - (currentMob.armor || 0)));
+    let damage = Math.max(1, Math.floor((character.stats.strength||0)*(0.8+Math.random()*0.4)-(currentMob.armor||0)));
+    if(Math.random()<0.05+(character.stats.luck||0)*0.01) damage = Math.floor(damage*1.5);
     currentMob.hp -= damage;
     addLog(`Ти завдаєш ${damage} шкоди ${currentMob.name}! (HP моба: ${currentMob.hp})`);
   }
+
   if(currentMob.hp>0){
-    let mobDamage = Math.max(1, Math.floor((currentMob.str || 1)*(0.8+Math.random()*0.4)));
+    let mobDamage = Math.max(1, Math.floor(currentMob.str*(0.8+Math.random()*0.4)));
     character.hp -= mobDamage;
     document.getElementById('hp').innerText = character.hp;
-    addLog(`${currentMob.name} атакує тебе — ${mobDamage} шкоди!`);
-  } else {
+    addLog(`${currentMob.name} атакує тебе — ${mobDamage} шкоди! (HP: ${character.hp})`);
+  }else{
     addLog(`${currentMob.name} переможений!`);
     gainExp(currentMob.exp);
     dropItems(currentMob.drops);
-    currentMob = null;
+    currentMob=null;
     document.getElementById('location-img').style.backgroundImage = `url('${currentLocation.img}')`;
   }
+
   if(character.hp<=0){
-    addLog("Ти непритомнієш і приходиш до тями...");
-    character.hp = Math.max(20, character.stats.endurance*5);
+    addLog("Ти непритомнієш і приходиш до тями на узбережжі...");
+    character.hp = Math.max(20, (character.stats.endurance||0)*5);
     document.getElementById('hp').innerText = character.hp;
   }
 }
 
 function gainExp(exp){
   character.exp += exp;
-  addLog(`Ти отримав ${exp} EXP!`);
+  addLog(`Ти отримав ${exp} EXP! (Всього: ${character.exp})`);
+  if(character.exp>=character.level*20){
+    character.level++; character.exp=0;
+    addLog("Вітаємо! Ти підвищив рівень!");
+    document.getElementById('level').innerText = character.level;
+    character.hp = (character.stats.endurance||0)*5+20;
+    document.getElementById('hp').innerText = character.hp;
+  }
 }
 
-// ---------- Drop Items ----------
 function dropItems(drops){
   drops.forEach(item=>{
-    if(Math.random() < item.chance*(1 + character.stats.luck*0.02)){
+    if(Math.random()<item.chance*(1+(character.stats.luck||0)*0.02)){
       character.inventory.push(item);
       addLog(`Ти отримав дроп: ${item.name}`);
     }
   });
 }
 
-// ---------- Inventory ----------
+function explore(){ addLog("Ти досліджуєш територію… нічого цікавого не знаходиш."); }
+function showCharacter(){ addLog(`Персонаж: Герой, рівень ${character.level}, HP: ${character.hp}`); }
+
 function openInventory(){
   let modal = document.getElementById('inventory-modal');
   let container = document.getElementById('inventory-items');
   container.innerHTML = '';
-  character.inventory.forEach((it,i)=>{
+  character.inventory.forEach(it=>{
     let div = document.createElement('div');
     div.className='item';
     let statsText='';
-    if(it.stats){
-      for(let key in it.stats){ statsText += `<div style="font-size:12px;color:#ccc;">${key}: +${it.stats[key]}</div>`; }
-    }
-    // Кнопка одягти/зняти
-    let actionBtn='';
-    if(it.slot && character.equipment[it.slot]===it){
-      actionBtn=`<button onclick="unequip(${i})">Зняти</button>`;
-    } else if(it.slot){
-      actionBtn=`<button onclick="equip(${i})">Одягти</button>`;
-    }
-    div.innerHTML = `<img src="${it.img}" alt="${it.name}"><div><strong>${it.name}</strong>${statsText}${actionBtn}</div>`;
+    if(it.stats) for(let k in it.stats) statsText+=`<div style="font-size:12px;color:#ccc;">${k}: +${it.stats[k]}</div>`;
+    div.innerHTML=`<img src="${it.img}" alt="${it.name}"><div><strong>${it.name}</strong>${statsText}</div>`;
     container.appendChild(div);
   });
   modal.style.display='block';
 }
-
 function closeInventory(){ document.getElementById('inventory-modal').style.display='none'; }
 
-function equip(index){
-  let item = character.inventory[index];
-  if(item.slot){
-    character.equipment[item.slot]=item;
-    recalcStats();
-    openInventory();
-    addLog(`🟢 Одягнуто: ${item.name}`);
+let recipes=[
+  {name:"Посилений Ніж", requires:[{name:"Старий ніж", qty:1},{name:"Камінь магії", qty:1}]},
+  {name:"Броня Руїн", requires:[{name:"Потерта куртка", qty:1},{name:"Камінь", qty:2}]},
+  {name:"Артефакт Сили", requires:[{name:"Уламок артефакту", qty:3},{name:"Камінь магії", qty:2}]}
+];
+
+function openCraft(){
+  let modal=document.getElementById('craft-modal');
+  let list=document.getElementById('craft-list');
+  list.innerHTML='';
+  recipes.forEach((r,i)=>{
+    let div=document.createElement('div');
+    div.style.margin="10px 0";
+    div.innerHTML=`<strong>${r.name}</strong> <button onclick="craftItem(${i})">Створити</button>`;
+    let reqs=document.createElement('div'); reqs.style.fontSize="12px";
+    reqs.innerText="Потрібно: "+r.requires.map(x=>x.qty+"x "+x.name).join(", ");
+    div.appendChild(reqs);
+    list.appendChild(div);
+  });
+  modal.style.display='block';
+}
+function closeCraft(){ document.getElementById('craft-modal').style.display='none'; }
+function craftItem(index){
+  let r=recipes[index];
+  if(!r.requires.every(req=>character.inventory.filter(i=>i.name===req.name).length>=req.qty)){
+    addLog(`Недостатньо ресурсів для ${r.name}`); return;
   }
+  r.requires.forEach(req=>{for(let i=0;i<req.qty;i++){let idx=character.inventory.findIndex(it=>it.name===req.name); if(idx>=0) character.inventory.splice(idx,1);} });
+  character.inventory.push({name:r.name,img:"https://i.imgur.com/ZbZ6F5B.png"});
+  addLog(`Вітаємо! Ви створили: ${r.name}`);
+  openInventory();
 }
 
-function unequip(index){
-  let item = character.inventory[index];
-  if(item.slot && character.equipment[item.slot]===item){
-    character.equipment[item.slot]=null;
-    recalcStats();
-    openInventory();
-    addLog(`🔴 Знято: ${item.name}`);
-  }
-}
-
-// ---------- Other ----------
-function addLog(text){ battleLog.innerHTML += text+'<br>'; battleLog.scrollTop=battleLog.scrollHeight; }
-function explore(){ addLog("Ти досліджуєш територію…"); }
-function showCharacter(){ addLog(`Персонаж: Герой, рівень ${character.level}, HP: ${character.hp}`); }
-
-// ---------- Location ----------
 function openLocationModal(){
   let modal=document.getElementById('location-modal');
   let list=document.getElementById('location-list');
@@ -197,7 +283,9 @@ function changeLocation(index){
 }
 function changeLocationUI(){ openLocationModal(); }
 
-// ---------- Init ----------
-if(!loadGame()){ changeLocation(0); }
+// Ініціалізація
+if(!loadGame()) changeLocation(0);
 recalcStats();
 </script>
+</body>
+</html>
