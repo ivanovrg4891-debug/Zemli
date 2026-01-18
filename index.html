@@ -225,7 +225,7 @@ function openInventory(){
 
   modal.style.display = 'block';
 }
-
+function closeInventory(){ document.getElementById('inventory-modal').style.display='none'; }
 // Крафт
 let recipes = [
   {name:"Посилений Ніж", requires:[{name:"Старий ніж", qty:1},{name:"Камінь магії", qty:1}]},
