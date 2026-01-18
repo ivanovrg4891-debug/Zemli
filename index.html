@@ -76,42 +76,46 @@ let character = {
   hp:35,
   level:10,
   exp:0,
-  strength:30,
-  agility:30,
-  endurance:30,
-  luck:20,
-  mastery:20,
+
+  baseStats:{
+    strength:30,
+    agility:30,
+    endurance:30,
+    luck:20,
+    mastery:20
+  },
+
+  stats:{}, // тут будуть фінальні стати з екіпою
+
+  equipment:{
+    weapon:null,
+    body:null,
+    legs:null
+  },
 
   inventory:[
-  {
-    name:"Старий ніж",
-    img:"images/niz0.png",
-    type:"weapon",
-    stats:{
-      damage:3,
-      strength:1
+    {
+      name:"Старий ніж",
+      img:"images/niz0.png",
+      type:"weapon",
+      slot:"weapon",
+      stats:{ damage:3, strength:1 }
+    },
+    {
+      name:"Потерта куртка",
+      img:"images/Bod0.png",
+      type:"armor",
+      slot:"body",
+      stats:{ armor:1, hp:5 }
+    },
+    {
+      name:"Диряві штани",
+      img:"images/leg0.png",
+      type:"armor",
+      slot:"legs",
+      stats:{ armor:1, agility:1, hp:2 }
     }
-  },
-  {
-    name:"Потерта куртка",
-    img:"images/Bod0.png",
-    type:"armor",
-    stats:{
-      armor:1,
-      hp:5
-    }
-  },
-  {
-    name:"Диряві штани",
-    img:"images/leg0.png",
-    type:"armor",
-    stats:{
-      armor:1,
-      agility:1,
-      hp:2
-    }
-  }
-]
+  ]
 };
 
 let locations = [
@@ -143,7 +147,22 @@ let battleLog = document.getElementById('battle-log');
   addLog("💾 Гру збережено");
 }
 
-function loadGame(){
+function loadGame()function recalcStats(){
+  character.stats = {...character.baseStats};
+  character.stats.hp = character.baseStats.endurance * 5 + 20;
+  character.stats.armor = 0;
+  character.stats.damage = 0;
+
+  Object.values(character.equipment).forEach(item=>{
+    if(!item || !item.stats) return;
+    for(let stat in item.stats){
+      character.stats[stat] = (character.stats[stat] || 0) + item.stats[stat];
+    }
+  });
+
+  character.hp = Math.min(character.hp, character.stats.hp);
+  document.getElementById('hp').innerText = character.hp;
+}{
   const data = localStorage.getItem("lonely_lands_save");
   if(!data) return false;
 
@@ -323,6 +342,7 @@ function changeLocationUI(){ openLocationModal(); }
 if(!loadGame()){
   changeLocation(0);
 }
+  recalcStats();
 </script>
 </body>
 </html>
