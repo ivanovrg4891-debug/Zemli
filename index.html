@@ -133,6 +133,33 @@ let currentLocation = locations[0];
 let currentMob = null;
 let eliteCooldowns = {};
 let battleLog = document.getElementById('battle-log');
+  function saveGame(){
+  const saveData = {
+    character,
+    currentLocationIndex: locations.indexOf(currentLocation),
+    eliteCooldowns
+  };
+  localStorage.setItem("lonely_lands_save", JSON.stringify(saveData));
+  addLog("💾 Гру збережено");
+}
+
+function loadGame(){
+  const data = localStorage.getItem("lonely_lands_save");
+  if(!data) return false;
+
+  const save = JSON.parse(data);
+  character = save.character;
+  eliteCooldowns = save.eliteCooldowns || {};
+
+  changeLocation(save.currentLocationIndex || 0);
+
+  document.getElementById('hp').innerText = character.hp;
+  document.getElementById('level').innerText = character.level;
+  document.getElementById('exp').innerText = character.exp;
+
+  addLog("📂 Гру завантажено");
+  return true;
+}
 
 function addLog(text){ battleLog.innerHTML += text+'<br>'; battleLog.scrollTop=battleLog.scrollHeight; }
 function chooseMob() {
@@ -293,7 +320,9 @@ function changeLocation(index){
 function changeLocationUI(){ openLocationModal(); }  
 
 // Ініціалізація
-changeLocation(0);
+if(!loadGame()){
+  changeLocation(0);
+}
 </script>
 </body>
 </html>
