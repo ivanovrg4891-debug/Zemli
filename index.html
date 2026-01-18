@@ -217,15 +217,51 @@ function openInventory(){
   let modal = document.getElementById('inventory-modal');
   let container = document.getElementById('inventory-items');
   container.innerHTML = '';
-  character.inventory.forEach(it=>{
+
+  character.inventory.forEach((it, idx)=>{
     let div = document.createElement('div');
     div.className='item';
+
     let statsText='';
     if(it.stats) for(let k in it.stats) statsText+=`<div style="font-size:12px;color:#ccc;">${k}: +${it.stats[k]}</div>`;
-    div.innerHTML=`<img src="${it.img}" alt="${it.name}"><div><strong>${it.name}</strong>${statsText}</div>`;
+
+    // Кнопки "Одягти/Зняти" для екіпіровки
+    let btnHTML = '';
+    if(it.slot){ 
+      if(character.equipment[it.slot] && character.equipment[it.slot].name === it.name){
+        btnHTML = `<button onclick="unequipItem('${it.slot}')">Зняти</button>`;
+      } else {
+        btnHTML = `<button onclick="equipItem(${idx})">Одягти</button>`;
+      }
+    }
+
+    div.innerHTML=`<img src="${it.img}" alt="${it.name}"><div><strong>${it.name}</strong>${statsText}</div>${btnHTML}`;
     container.appendChild(div);
   });
   modal.style.display='block';
+}
+
+function equipItem(index){
+  let item = character.inventory[index];
+  if(!item.slot){ addLog("Цей предмет не можна одягти."); return; }
+
+  // Якщо щось вже одягнено у цьому слоті, знімаємо
+  if(character.equipment[item.slot]){
+    unequipItem(item.slot);
+  }
+
+  character.equipment[item.slot] = item;
+  addLog(`Ти одягнув ${item.name}`);
+  recalcStats();
+  openInventory();
+}
+
+function unequipItem(slot){
+  if(!character.equipment[slot]) return;
+  addLog(`Ти зняв ${character.equipment[slot].name}`);
+  character.equipment[slot] = null;
+  recalcStats();
+  openInventory();
 }
 function closeInventory(){ document.getElementById('inventory-modal').style.display='none'; }
 
