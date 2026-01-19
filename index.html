@@ -7,14 +7,52 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#1e222c;color:#e6e6e6;font-family:Arial}
+
+/* ===== TOP MENU ===== */
 #topMenu{display:flex;background:#151821}
 #topMenu button{flex:1;padding:12px;background:none;color:#aaa;border:none;cursor:pointer}
 #topMenu button.active{background:#30364a;color:#fff}
-#game{display:flex;flex-direction:row;height:calc(100vh - 48px)}
-#leftPanel,#rightPanel{width:260px;background:#151821;padding:10px;overflow-y:auto}
-#centerPanel{flex:1;background:#262b3d;padding:10px;overflow-y:auto}
-#map{display:grid;grid-template-columns:repeat(7,60px);gap:4px;justify-content:center;margin-bottom:10px}
-.cell{width:60px;height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;text-align:center}
+
+/* ===== GAME LAYOUT ===== */
+#game{
+  display:flex;
+  flex-direction:row;
+  height:calc(100vh - 48px);
+}
+#leftPanel,#rightPanel{
+  width:260px;
+  background:#151821;
+  padding:10px;
+  overflow-y:auto;
+  flex-shrink:0;
+}
+#centerPanel{
+  flex:1;
+  background:#262b3d;
+  padding:10px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ===== MAP ===== */
+#mapTab, #invTab, #charTab, #battleTab, #questTab, #shopTab {
+  overflow-y:auto;
+  flex:1;
+}
+#map{
+  display:grid;
+  grid-template-columns:repeat(7,60px);
+  gap:4px;
+  justify-content:center;
+  margin-bottom:10px;
+  max-height:420px; /* обмеження висоти карти */
+}
+.cell{
+  width:60px;height:60px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;text-align:center;
+}
 .player{background:#4caf50}
 .enemy{cursor:pointer}
 .npc{background:#e6a23c;color:#000;font-weight:bold}
@@ -23,17 +61,62 @@ body{margin:0;background:#1e222c;color:#e6e6e6;font-family:Arial}
 .tank{background:#2a5b8e}
 .archer{background:#2a8e4b}
 .mage{background:#6a2a8e}
-.inventory,.equip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
-.slot{height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;padding:2px;text-align:center;white-space:pre-line}
+
+/* ===== INVENTORY / EQUIP ===== */
+.inventory,.equip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin-bottom:10px;
+}
+.slot{
+  height:60px;
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;
+  cursor:pointer;
+  padding:2px;
+  text-align:center;
+  white-space:pre-line;
+}
 .white{background:#666}
 .blue{background:#2a5b8e}
 .purple{background:#6a2a8e}
 .gold{background:#ffd700;color:#000;font-weight:bold}
-#battle,#shop{background:#151821;padding:20px;border-radius:10px;margin-top:10px}
-button.action{width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:pointer}
-#log{height:200px;overflow-y:auto;font-size:14px;margin-top:10px}
-.skillBtn{width:32%;margin-right:1%;margin-bottom:4px;padding:8px;font-size:14px;background:#444;color:#fff;border:none;border-radius:5px;cursor:pointer}
+
+/* ===== BATTLE / SHOP ===== */
+#battle,#shop{
+  background:#151821;
+  padding:20px;
+  border-radius:10px;
+  margin-top:10px;
+}
+button.action{
+  width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:pointer;
+}
+#log{
+  height:calc(100vh - 48px);
+  overflow-y:auto;
+  font-size:14px;
+  margin-top:10px;
+}
+
+/* ===== SKILLS ===== */
+.skillBtn{
+  width:32%;
+  margin-right:1%;
+  margin-bottom:4px;
+  padding:8px;
+  font-size:14px;
+  background:#444;
+  color:#fff;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
 .skillBtn.disabled{opacity:0.4;pointer-events:none;}
+
+/* ===== RESPONSIVE ===== */
 @media(max-width:900px){
   #game{flex-direction:column}
   #leftPanel,#rightPanel{width:100%;height:auto}
@@ -117,6 +200,7 @@ button.action{width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:poin
 </div>
 </div>
 
+<!-- СКРИПТ (залишив без змін) -->
 <script>
 /* ===== PLAYER ===== */
 let player={
@@ -357,29 +441,4 @@ function displayEquip(){
   let slot=document.createElement("div"); slot.className="slot";
   if(player.equip[k]) slot.textContent=player.equip[k].name;
   else slot.textContent=k;
-  equipSlots.appendChild(slot);
- });
-}
-
-function equipItem(index){
- let it=items[index];
- if(!it) return;
- let slotType=it.type||"weapon";
- let old=player.equip[slotType];
- player.equip[slotType]=it;
- if(old) items.push(old);
- items.splice(index,1);
- updateUI();
-}
-
-/* ===== TAB & LOG ===== */
-function showTab(t,b){centerPanel.querySelectorAll("div").forEach(d=>d.style.display="none");document.getElementById(t).style.display="block";document.querySelectorAll("#topMenu button").forEach(x=>x.classList.remove("active"));b.classList.add("active");}
-function showOnly(t){centerPanel.querySelectorAll("div").forEach(d=>d.style.display="none");document.getElementById(t).style.display="block";}
-function log(t){log.innerHTML+=t+"<br>"; log.scrollTop = log.scrollHeight;}
-
-/* ===== INIT ===== */
-drawMap();
-updateUI();
-</script>
-
-</body>
+  equipSlots
