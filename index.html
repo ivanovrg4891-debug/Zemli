@@ -8,12 +8,12 @@
 *{box-sizing:border-box}
 body{margin:0;background:#1e222c;color:#e6e6e6;font-family:Arial}
 #topMenu{display:flex;background:#151821}
-#topMenu button{flex:1;padding:12px;background:none;color:#aaa;border:none}
+#topMenu button{flex:1;padding:12px;background:none;color:#aaa;border:none;cursor:pointer}
 #topMenu button.active{background:#30364a;color:#fff}
-#game{display:flex;height:calc(100vh - 48px)}
-#leftPanel,#rightPanel{width:260px;background:#151821;padding:10px}
-#centerPanel{flex:1;background:#262b3d;padding:10px}
-#map{display:grid;grid-template-columns:repeat(7,60px);gap:4px;justify-content:center}
+#game{display:flex;flex-direction:row;height:calc(100vh - 48px)}
+#leftPanel,#rightPanel{width:260px;background:#151821;padding:10px;overflow-y:auto}
+#centerPanel{flex:1;background:#262b3d;padding:10px;overflow-y:auto}
+#map{display:grid;grid-template-columns:repeat(7,60px);gap:4px;justify-content:center;margin-bottom:10px}
 .cell{width:60px;height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;text-align:center}
 .player{background:#4caf50}
 .enemy{cursor:pointer}
@@ -24,16 +24,22 @@ body{margin:0;background:#1e222c;color:#e6e6e6;font-family:Arial}
 .archer{background:#2a8e4b}
 .mage{background:#6a2a8e}
 .inventory,.equip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
-.slot{height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;padding:2px;text-align:center}
+.slot{height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;padding:2px;text-align:center;white-space:pre-line}
 .white{background:#666}
 .blue{background:#2a5b8e}
 .purple{background:#6a2a8e}
 .gold{background:#ffd700;color:#000;font-weight:bold}
 #battle,#shop{background:#151821;padding:20px;border-radius:10px;margin-top:10px}
-button.action{width:100%;padding:12px;margin-top:10px;font-size:18px}
-#log{height:200px;overflow-y:auto;font-size:14px}
-.skillBtn{width:32%;margin-right:1%;padding:8px;font-size:14px;background:#444;color:#fff;border:none;border-radius:5px;cursor:pointer}
+button.action{width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:pointer}
+#log{height:200px;overflow-y:auto;font-size:14px;margin-top:10px}
+.skillBtn{width:32%;margin-right:1%;margin-bottom:4px;padding:8px;font-size:14px;background:#444;color:#fff;border:none;border-radius:5px;cursor:pointer}
 .skillBtn.disabled{opacity:0.4;pointer-events:none;}
+@media(max-width:900px){
+  #game{flex-direction:column}
+  #leftPanel,#rightPanel{width:100%;height:auto}
+  #centerPanel{width:100%;height:auto}
+  .skillBtn{width:30%;margin:2px 1% 2px 0}
+}
 </style>
 </head>
 <body>
@@ -156,14 +162,11 @@ function drawMap(){
   enemies.forEach(e=>{if(e.pos===i){let t=enemyTypes[e.type];c.classList.add("enemy",t.class);c.textContent=t.icon;}});
   npcs.forEach(n=>{if(n.pos===i){c.classList.add("npc");c.textContent="🤵";}});
   shops.forEach(s=>{if(s.pos===i){c.classList.add("shopNPC");c.textContent="💰";}});
-
-  // кліки
   c.onclick = (e) => {
     if(npcs.some(n => n.pos===i)){interactNPC(npcs.find(n=>n.pos===i)); e.stopPropagation();}
     else if(shops.some(s => s.pos===i)){openShop(shops.find(s=>s.pos===i)); e.stopPropagation();}
     else move(i);
   };
-
   map.appendChild(c);
  }
  updateUI();
@@ -220,7 +223,7 @@ function winBattle(){
  drawMap();
 }
 
-/* ===== LOOT / RARE ITEMS ===== */
+/* ===== LOOT ===== */
 function dropLoot(enemy){
  let chance=Math.random();
  if(chance<0.7){
@@ -251,6 +254,7 @@ function checkLevelUp(){
  }
 }
 
+/* ===== SKILLS ===== */
 function useSkill(n){
  if(player.skillCD[n-1]>0) return;
  switch(n){
@@ -331,7 +335,7 @@ function updateUI(){
  for(let i=1;i<=3;i++){
    let btn=document.getElementById("skill"+i);
    if(player.skillCD[i-1]>0){btn.classList.add("disabled"); btn.textContent="CD "+player.skillCD[i-1];}
-   else btn.classList.remove("disabled");
+   else btn.classList.remove("disabled"); if(i===1) btn.textContent="Сильний удар"; if(i===2) btn.textContent="Щит"; if(i===3) btn.textContent="Лікування";
  }
  displayInventory();
  displayEquip();
@@ -340,7 +344,7 @@ function updateUI(){
 function displayInventory(){
  inventory.innerHTML="";
  items.forEach((it,index)=>{
-  let slot=document.createElement("div"); slot.className="slot "+it.rarity;
+  let slot=document.createElement("div"); slot.className="slot "+(it.rarity||"white");
   slot.textContent=it.name+"\n"+(it.dmg?("DMG:"+it.dmg+" "):"")+(it.hp?("HP:"+it.hp+" "):"")+(it.crit?("Crit:"+it.crit+" "):"");
   slot.onclick=()=>equipItem(index);
   inventory.appendChild(slot);
@@ -360,13 +364,11 @@ function displayEquip(){
 function equipItem(index){
  let it=items[index];
  if(!it) return;
-
- let slotType=it.type;
+ let slotType=it.type||"weapon";
  let old=player.equip[slotType];
  player.equip[slotType]=it;
-
- if(old) items.push(old); // старий предмет повертаємо в інвентар
- items.splice(index,1);    // новий видаляємо
+ if(old) items.push(old);
+ items.splice(index,1);
  updateUI();
 }
 
@@ -381,4 +383,3 @@ updateUI();
 </script>
 
 </body>
-</html>
