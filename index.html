@@ -3,202 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Моя RPG</title>
+<title>RPG GUI</title>
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #2b2e3c;
-    color: #fff;
-  }
-  #topMenu {
-    display: flex;
-    background: #1f2130;
-    padding: 5px;
-  }
-  #topMenu button {
-    flex: 1;
-    padding: 10px;
-    margin: 2px;
-    background: #2b2e3c;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-  }
-  #topMenu button.active {
-    background: #4a4f69;
-  }
-  #container {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-  }
-  #charPanel {
-    background: #1f2130;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  #mapTab, #invTab, #charTab {
-    display: none;
-    margin-bottom: 10px;
-  }
-  #mapGrid {
-    display: grid;
-    grid-template-columns: repeat(7, 50px);
-    grid-template-rows: repeat(7, 50px);
-    gap: 5px;
-    justify-content: center;
-  }
-  .gridCell {
-    width: 50px;
-    height: 50px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size: 24px;
-    border-radius: 6px;
-  }
-  .player { background: #4caf50; }
-  .enemy { background: #e53935; }
-  .npc { background: #ffa726; }
-  .shop { background: #ffeb3b; }
-  .loot { background: #9c27b0; }
-  #logPanel {
-    background: #1f2130;
-    padding: 10px;
-    height: 100px;
-    overflow-y: auto;
-  }
-  #inventory {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-  .invSlot {
-    width: 50px;
-    height: 50px;
-    background: #3c3f5c;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius: 6px;
-    cursor: pointer;
-  }
+body {
+  margin: 0;
+  font-family: 'Verdana', sans-serif;
+  background: #1d1f2a;
+  color: #fff;
+}
+
+#topMenu {
+  display: flex;
+  background: #2c2f42;
+  border-bottom: 2px solid #444;
+}
+
+#topMenu button {
+  flex: 1;
+  padding: 10px;
+  background: #2c2f42;
+  border: none;
+  color: #aaa;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#topMenu button.active {
+  background: #3f4160;
+  color: #fff;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.panel {
+  display: none;
+  margin-top: 10px;
+}
+
+#charPanel {
+  display: block;
+}
+
+.stats {
+  background: #2c2f42;
+  padding: 10px;
+  border: 1px solid #444;
+  width: 200px;
+}
+
+.stats h2 { margin: 0 0 10px 0; font-size: 18px; }
+
+.stats div { margin: 5px 0; }
+
+#inventoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 60px);
+  gap: 5px;
+}
+
+.slot {
+  width: 60px; height: 60px;
+  background: #3f4160;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #555;
+  cursor: pointer;
+}
+
+.slot img {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+#map {
+  background: #2c2f42;
+  width: 100%;
+  height: 300px;
+  border: 1px solid #444;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.mapCell {
+  width: 40px; height: 40px;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#log {
+  background: #2c2f42;
+  height: 100px;
+  border: 1px solid #444;
+  overflow-y: auto;
+  padding: 5px;
+  font-size: 14px;
+}
 </style>
 </head>
 <body>
 
 <div id="topMenu">
-  <button class="active" onclick="showTab('mapTab', this)">Карта</button>
-  <button onclick="showTab('invTab', this)">Інвентар</button>
-  <button onclick="showTab('charTab', this)">Персонаж</button>
+  <button class="active" onclick="showTab('mapPanel', this)">Карта</button>
+  <button onclick="showTab('inventoryPanel', this)">Інвентар</button>
+  <button onclick="showTab('charPanel', this)">Персонаж</button>
 </div>
 
-<div id="container">
-  <div id="charPanel">
-    <h3>Персонаж</h3>
-    <div>HP: <span id="hp">/</span></div>
-    <div>Урон: <span id="dmg">/</span></div>
-    <div>AP: <span id="ap">/</span></div>
-    <div>Рівень: <span id="lvl">/</span></div>
-    <div>XP: <span id="xp">/</span></div>
-    <div>Золото: <span id="gold">/</span></div>
-    <button onclick="endTurn()">Завершити хід</button>
+<div class="container">
+
+  <div id="charPanel" class="panel">
+    <div class="stats">
+      <h2>Персонаж</h2>
+      <div>HP: <span id="hp">25/25</span></div>
+      <div>Урон: <span id="dmg">4</span></div>
+      <div>AP: <span id="ap">3</span></div>
+      <div>Рівень: <span id="lvl">1</span></div>
+      <div>XP: <span id="xp">0/20</span></div>
+      <div>Золото: <span id="gold">50</span></div>
+    </div>
   </div>
 
-  <!-- Вкладки -->
-  <div id="mapTab">
-    <div id="mapGrid"></div>
+  <div id="inventoryPanel" class="panel">
+    <h2>Інвентар</h2>
+    <div id="inventoryGrid">
+      <div class="slot" onclick="useItem(0)"><img src="https://img.icons8.com/color/48/000000/sword.png"/></div>
+      <div class="slot" onclick="useItem(1)"><img src="https://img.icons8.com/color/48/000000/shield.png"/></div>
+      <div class="slot" onclick="useItem(2)"><img src="https://img.icons8.com/color/48/000000/potion.png"/></div>
+      <div class="slot"></div>
+    </div>
   </div>
 
-  <div id="invTab">
-    <div id="inventory"></div>
+  <div id="mapPanel" class="panel">
+    <h2>Карта</h2>
+    <div id="map"></div>
   </div>
 
-  <div id="charTab">
-    <p>Додаткові деталі персонажа можна тут додати</p>
-  </div>
-
-  <div id="logPanel">
-    <h4>Лог</h4>
-    <div id="log"></div>
+  <div id="log">
+    Лог бою:
   </div>
 </div>
 
 <script>
-  const player = {hp:25,maxHp:25,dmg:4,ap:3,lvl:1,xp:0,gold:50,pos:{x:3,y:3}};
-  const mapSize = 7;
-  const map = [];
+function showTab(tabId, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+  document.getElementById(tabId).style.display='block';
+  document.querySelectorAll('#topMenu button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
 
-  const enemies = [{x:1,y:2},{x:5,y:4}];
-  const npcs = [{x:5,y:1}];
-  const shops = [{x:3,y:1}];
-  const loot = [{x:2,y:5}];
+// приклад ігрових клітин на карті
+const map = document.getElementById('map');
+const cells = [
+  {x:0, y:0, icon:'⚔️'}, 
+  {x:1, y:0, icon:'🛡️'}, 
+  {x:2, y:1, icon:'💰'}, 
+  {x:3, y:2, icon:'🙂'}
+];
+cells.forEach(c=>{
+  const div = document.createElement('div');
+  div.classList.add('mapCell');
+  div.style.left = (c.x*45)+'px';
+  div.style.top = (c.y*45)+'px';
+  div.textContent = c.icon;
+  map.appendChild(div);
+});
 
-  function showTab(tabId, btn){
-    ['mapTab','invTab','charTab'].forEach(t => document.getElementById(t).style.display = 'none');
-    document.getElementById(tabId).style.display = 'block';
-    document.querySelectorAll('#topMenu button').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-  }
-
-  function updateUI(){
-    document.getElementById('hp').textContent = player.hp + "/" + player.maxHp;
-    document.getElementById('dmg').textContent = player.dmg;
-    document.getElementById('ap').textContent = player.ap;
-    document.getElementById('lvl').textContent = player.lvl;
-    document.getElementById('xp').textContent = player.xp + "/20";
-    document.getElementById('gold').textContent = player.gold;
-  }
-
-  function log(msg){
-    const logDiv = document.getElementById('log');
-    logDiv.innerHTML += msg + "<br>";
-    logDiv.scrollTop = logDiv.scrollHeight;
-  }
-
-  function drawMap(){
-    const grid = document.getElementById('mapGrid');
-    grid.innerHTML = '';
-    for(let y=0;y<mapSize;y++){
-      for(let x=0;x<mapSize;x++){
-        const cell = document.createElement('div');
-        cell.className = 'gridCell';
-        if(player.pos.x===x && player.pos.y===y) cell.classList.add('player');
-        else if(enemies.some(e=>e.x===x && e.y===y)) cell.classList.add('enemy');
-        else if(npcs.some(n=>n.x===x && n.y===y)) cell.classList.add('npc');
-        else if(shops.some(s=>s.x===x && s.y===y)) cell.classList.add('shop');
-        else if(loot.some(l=>l.x===x && l.y===y)) cell.classList.add('loot');
-        grid.appendChild(cell);
-      }
-    }
-  }
-
-  function displayInventory(){
-    const invDiv = document.getElementById('inventory');
-    invDiv.innerHTML = '';
-    const items = [
-      {name:'Меч'}, {name:'Щит'}, {name:'Лук'}
-    ];
-    items.forEach((it, i)=>{
-      const slot = document.createElement('div');
-      slot.className = 'invSlot';
-      slot.textContent = it.name;
-      slot.onclick = ()=>{log("Екіпірував " + it.name);};
-      invDiv.appendChild(slot);
-    });
-  }
-
-  function endTurn(){
-    log("Хід завершено.");
-  }
-
-  window.onload = function(){
-    showTab('mapTab');
-    updateUI();
-    drawMap();
-    displayInventory();
-  }
+function useItem(i){
+  document.getElementById('log').innerHTML += `<div>Використано предмет #${i}</div>`;
+}
 </script>
 
 </body>
