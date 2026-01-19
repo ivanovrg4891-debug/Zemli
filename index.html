@@ -7,52 +7,14 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#1e222c;color:#e6e6e6;font-family:Arial}
-
-/* ===== TOP MENU ===== */
 #topMenu{display:flex;background:#151821}
 #topMenu button{flex:1;padding:12px;background:none;color:#aaa;border:none;cursor:pointer}
 #topMenu button.active{background:#30364a;color:#fff}
-
-/* ===== GAME LAYOUT ===== */
-#game{
-  display:flex;
-  flex-direction:row;
-  height:calc(100vh - 48px);
-}
-#leftPanel,#rightPanel{
-  width:260px;
-  background:#151821;
-  padding:10px;
-  overflow-y:auto;
-  flex-shrink:0;
-}
-#centerPanel{
-  flex:1;
-  background:#262b3d;
-  padding:10px;
-  overflow-y:auto;
-  display:flex;
-  flex-direction:column;
-}
-
-/* ===== MAP ===== */
-#mapTab, #invTab, #charTab, #battleTab, #questTab, #shopTab {
-  overflow-y:auto;
-  flex:1;
-}
-#map{
-  display:grid;
-  grid-template-columns:repeat(7,60px);
-  gap:4px;
-  justify-content:center;
-  margin-bottom:10px;
-  max-height:420px; /* обмеження висоти карти */
-}
-.cell{
-  width:60px;height:60px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;cursor:pointer;text-align:center;
-}
+#game{display:flex;flex-direction:row;height:calc(100vh - 48px)}
+#leftPanel,#rightPanel{width:260px;background:#151821;padding:10px;overflow-y:auto;flex-shrink:0}
+#centerPanel{flex:1;background:#262b3d;padding:10px;overflow-y:auto;display:flex;flex-direction:column}
+#map{display:grid;grid-template-columns:repeat(7,60px);gap:4px;justify-content:center;margin-bottom:10px}
+.cell{width:60px;height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;text-align:center}
 .player{background:#4caf50}
 .enemy{cursor:pointer}
 .npc{background:#e6a23c;color:#000;font-weight:bold}
@@ -61,62 +23,17 @@ body{margin:0;background:#1e222c;color:#e6e6e6;font-family:Arial}
 .tank{background:#2a5b8e}
 .archer{background:#2a8e4b}
 .mage{background:#6a2a8e}
-
-/* ===== INVENTORY / EQUIP ===== */
-.inventory,.equip{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:6px;
-  margin-bottom:10px;
-}
-.slot{
-  height:60px;
-  border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;
-  cursor:pointer;
-  padding:2px;
-  text-align:center;
-  white-space:pre-line;
-}
+.inventory,.equip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.slot{height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;padding:2px;text-align:center;white-space:pre-line}
 .white{background:#666}
 .blue{background:#2a5b8e}
 .purple{background:#6a2a8e}
 .gold{background:#ffd700;color:#000;font-weight:bold}
-
-/* ===== BATTLE / SHOP ===== */
-#battle,#shop{
-  background:#151821;
-  padding:20px;
-  border-radius:10px;
-  margin-top:10px;
-}
-button.action{
-  width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:pointer;
-}
-#log{
-  height:calc(100vh - 48px);
-  overflow-y:auto;
-  font-size:14px;
-  margin-top:10px;
-}
-
-/* ===== SKILLS ===== */
-.skillBtn{
-  width:32%;
-  margin-right:1%;
-  margin-bottom:4px;
-  padding:8px;
-  font-size:14px;
-  background:#444;
-  color:#fff;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-}
+#battle,#shop,#questTab{background:#151821;padding:20px;border-radius:10px;margin-top:10px;overflow-y:auto}
+button.action{width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:pointer}
+#log{height:100%;overflow-y:auto;font-size:14px;margin-top:10px}
+.skillBtn{width:32%;margin-right:1%;margin-bottom:4px;padding:8px;font-size:14px;background:#444;color:#fff;border:none;border-radius:5px;cursor:pointer}
 .skillBtn.disabled{opacity:0.4;pointer-events:none;}
-
-/* ===== RESPONSIVE ===== */
 @media(max-width:900px){
   #game{flex-direction:column}
   #leftPanel,#rightPanel{width:100%;height:auto}
@@ -134,87 +51,77 @@ button.action{
 </div>
 
 <div id="game">
-<div id="leftPanel">
-<h3>Персонаж</h3>
-<p>HP: <span id="hp"></span>/<span id="maxhp"></span></p>
-<p>Урон: <span id="dmg"></span></p>
-<p>AP: <span id="ap"></span></p>
-<p>Рівень: <span id="level"></span></p>
-<p>XP: <span id="xp"></span>/<span id="xpToNext"></span></p>
-<p>Золото: <span id="gold"></span></p>
-<button onclick="endTurn()">Завершити хід</button>
+  <div id="leftPanel">
+    <h3>Персонаж</h3>
+    <p>HP: <span id="hp"></span>/<span id="maxhp"></span></p>
+    <p>Урон: <span id="dmg"></span></p>
+    <p>AP: <span id="ap"></span></p>
+    <p>Рівень: <span id="level"></span></p>
+    <p>XP: <span id="xp"></span>/<span id="xpToNext"></span></p>
+    <p>Золото: <span id="gold"></span></p>
+    <button onclick="endTurn()">Завершити хід</button>
+  </div>
+
+  <div id="centerPanel">
+    <div id="mapTab">
+      <div id="map"></div>
+    </div>
+
+    <div id="invTab" style="display:none">
+      <h3>Екіпіровка</h3>
+      <div class="equip" id="equipSlots"></div>
+      <h3>Рюкзак</h3>
+      <div class="inventory" id="inventory"></div>
+    </div>
+
+    <div id="charTab" style="display:none">
+      <p>Сила: <span id="str"></span></p>
+      <p>HP max: <span id="maxhp2"></span></p>
+      <p>Крит: <span id="crit"></span></p>
+      <p>Ухил: <span id="dodge"></span></p>
+      <p>Блок: <span id="block"></span></p>
+      <p>Доступні скіли:</p>
+      <div id="skills">
+        <button class="skillBtn" id="skill1" onclick="useSkill(1)">Сильний удар</button>
+        <button class="skillBtn" id="skill2" onclick="useSkill(2)">Щит</button>
+        <button class="skillBtn" id="skill3" onclick="useSkill(3)">Лікування</button>
+      </div>
+    </div>
+
+    <div id="battleTab" style="display:none">
+      <div id="battle">
+        <p>🙂 <span id="bPHP"></span>/<span id="bMaxHP"></span></p>
+        <p id="enemyName"></p>
+        <p>💀 <span id="bEHP"></span></p>
+        <button class="action" onclick="attack()">Атака</button>
+      </div>
+    </div>
+
+    <div id="questTab" style="display:none">
+      <h3>Квест</h3>
+      <p id="questText"></p>
+      <button onclick="completeQuest()">Виконати</button>
+    </div>
+
+    <div id="shopTab" style="display:none">
+      <h3>Магазин</h3>
+      <div id="shopItems"></div>
+      <button onclick="closeShop()">Закрити магазин</button>
+    </div>
+  </div>
+
+  <div id="rightPanel">
+    <h3>Лог</h3>
+    <div id="log"></div>
+  </div>
 </div>
 
-<div id="centerPanel">
-<div id="mapTab">
-<div id="map"></div>
-</div>
-
-<div id="invTab" style="display:none">
-<h3>Екіпіровка</h3>
-<div class="equip" id="equipSlots"></div>
-<h3>Рюкзак</h3>
-<div class="inventory" id="inventory"></div>
-</div>
-
-<div id="charTab" style="display:none">
-<p>Сила: <span id="str"></span></p>
-<p>HP max: <span id="maxhp2"></span></p>
-<p>Крит: <span id="crit"></span></p>
-<p>Ухил: <span id="dodge"></span></p>
-<p>Блок: <span id="block"></span></p>
-<p>Доступні скіли:</p>
-<div id="skills">
-<button class="skillBtn" id="skill1" onclick="useSkill(1)">Сильний удар</button>
-<button class="skillBtn" id="skill2" onclick="useSkill(2)">Щит</button>
-<button class="skillBtn" id="skill3" onclick="useSkill(3)">Лікування</button>
-</div>
-</div>
-
-<div id="battleTab" style="display:none">
-<div id="battle">
-<p>🙂 <span id="bPHP"></span>/<span id="bMaxHP"></span></p>
-<p id="enemyName"></p>
-<p>💀 <span id="bEHP"></span></p>
-<button class="action" onclick="attack()">Атака</button>
-</div>
-</div>
-
-<div id="questTab" style="display:none">
-<h3>Квест</h3>
-<p id="questText"></p>
-<button onclick="completeQuest()">Виконати</button>
-</div>
-
-<div id="shopTab" style="display:none">
-<h3>Магазин</h3>
-<div id="shopItems"></div>
-<button onclick="closeShop()">Закрити магазин</button>
-</div>
-
-</div>
-
-<div id="rightPanel">
-<h3>Лог</h3>
-<div id="log"></div>
-</div>
-</div>
-
-<!-- СКРИПТ (залишив без змін) -->
 <script>
-/* ===== PLAYER ===== */
-let player={
- baseStr:4,baseHp:25,hp:25,crit:10,dodge:10,block:0,gold:50,
- level:1,xp:0,xpToNext:20,
- equip:{weapon:null,shield:null,amulet:null},
- skillCD:[0,0,0],
- ap:3
-};
-
-/* ===== ITEMS ===== */
-let items=[];
-
-/* ===== ENEMIES ===== */
+// ===== PLAYER =====
+let player = {baseStr:4, baseHp:25, hp:25, crit:10, dodge:10, block:0, gold:50, level:1, xp:0, xpToNext:20, equip:{weapon:null,shield:null,amulet:null}, skillCD:[0,0,0], ap:3};
+// ===== ITEMS =====
+let items = [];
+// ===== ENEMIES =====
 const enemyTypes={berzerk:{icon:"🪓",class:"berzerk"},tank:{icon:"🛡",class:"tank"},archer:{icon:"🏹",class:"archer"},mage:{icon:"🔮",class:"mage"}};
 let enemies=[
  {pos:10,type:"berzerk",hp:18,dmg:4,xp:10,level:1},
@@ -222,23 +129,23 @@ let enemies=[
  {pos:20,type:"archer",hp:16,dmg:5,xp:10,level:2},
  {pos:30,type:"mage",hp:14,dmg:4,xp:12,level:3}
 ];
-
-/* ===== NPC / QUESTS ===== */
+// ===== NPC / QUESTS =====
 let npcs=[{pos:5,name:"Квестодавець",quest:{text:"Вбий 2 ворогів",progress:0,target:2,reward:{xp:15,gold:10,item:"Амулет"},completed:false}}];
 let shops=[{pos:3,name:"Торговець",inventory:[{name:"Меч",type:"weapon",dmg:5,price:30},{name:"Щит",type:"shield",hp:10,block:30,price:25}]}];
 
 let size=7,pos=24,currentEnemy=null,currentQuest=null,currentShop=null;
 
-/* ===== STATS ===== */
+// ===== STATS =====
 function calcStats(){
  let maxHp=player.baseHp,dmg=player.baseStr,crit=player.crit,dodge=player.dodge,block=player.block;
  Object.values(player.equip).forEach(i=>{if(!i)return;if(i.hp)maxHp+=i.hp;if(i.dmg)dmg+=i.dmg;if(i.block)block+=i.block;if(i.dodge)dodge+=i.dodge;});
  return{maxHp,dmg,crit,dodge,block};
 }
 
-/* ===== MAP ===== */
+// ===== MAP =====
 function drawMap(){
- map.innerHTML="";
+ const mapEl=document.getElementById("map");
+ mapEl.innerHTML="";
  for(let i=0;i<size*size;i++){
   let c=document.createElement("div");
   c.className="cell";
@@ -251,12 +158,12 @@ function drawMap(){
     else if(shops.some(s => s.pos===i)){openShop(shops.find(s=>s.pos===i)); e.stopPropagation();}
     else move(i);
   };
-  map.appendChild(c);
+  mapEl.appendChild(c);
  }
  updateUI();
 }
 
-/* ===== MOVE ===== */
+// ===== MOVE =====
 function move(to){
  if(player.ap<=0) return;
  let d=Math.abs(to-pos);
@@ -268,22 +175,20 @@ function move(to){
  }
 }
 
-/* ===== TURN ===== */
+// ===== TURN =====
 function endTurn(){
  player.ap=3;
  player.skillCD=player.skillCD.map(x=>x>0?x-1:0);
  drawMap();
 }
 
-/* ===== BATTLE ===== */
+// ===== BATTLE =====
 function checkBattle(){enemies.forEach(e=>{if(e.pos===pos)startBattle(e);});}
-function startBattle(e){currentEnemy=e;showOnly("battleTab");enemyName.textContent=enemyTypes[e.type].icon+" "+e.type.toUpperCase();updateBattle();log("⚔ Бій почався!");}
+function startBattle(e){currentEnemy=e;showOnly("battleTab");document.getElementById("enemyName").textContent=enemyTypes[e.type].icon+" "+e.type.toUpperCase();updateBattle();log("⚔ Бій почався!");}
 function attack(){
  if(!currentEnemy) return;
  let ps=calcStats();
- let dmg=ps.dmg;
- if(Math.random()*100<ps.crit) dmg=Math.floor(dmg*2);
- dmg=Math.floor(dmg);
+ let dmg=ps.dmg; if(Math.random()*100<ps.crit) dmg=Math.floor(dmg*2); dmg=Math.floor(dmg);
  currentEnemy.hp-=dmg; log("Ти вдарив на "+dmg);
  if(currentEnemy.hp<=0){winBattle(); return;}
  let edmg=currentEnemy.dmg;
@@ -291,13 +196,12 @@ function attack(){
  log("Ворог завдав "+edmg);
  updateBattle();
 }
-function updateBattle(){bPHP.textContent=player.hp;bMaxHP.textContent=calcStats().maxHp;bEHP.textContent=currentEnemy?currentEnemy.hp:0;updateUI();}
+function updateBattle(){document.getElementById("bPHP").textContent=player.hp;document.getElementById("bMaxHP").textContent=calcStats().maxHp;document.getElementById("bEHP").textContent=currentEnemy?currentEnemy.hp:0;updateUI();}
 
-/* ===== WIN & LOOT ===== */
+// ===== WIN & LOOT =====
 function winBattle(){
  log("☠ Ворог переможений!");
- player.gold+=5;
- player.xp+=currentEnemy.xp;
+ player.gold+=5; player.xp+=currentEnemy.xp;
  dropLoot(currentEnemy);
  checkLevelUp();
  updateQuestProgress();
@@ -307,7 +211,7 @@ function winBattle(){
  drawMap();
 }
 
-/* ===== LOOT ===== */
+// ===== LOOT =====
 function dropLoot(enemy){
  let chance=Math.random();
  if(chance<0.7){
@@ -325,7 +229,7 @@ function dropLoot(enemy){
  }
 }
 
-/* ===== LEVEL UP ===== */
+// ===== LEVEL UP =====
 function checkLevelUp(){
  while(player.xp>=player.xpToNext){
    player.xp-=player.xpToNext;
@@ -338,7 +242,7 @@ function checkLevelUp(){
  }
 }
 
-/* ===== SKILLS ===== */
+// ===== SKILLS =====
 function useSkill(n){
  if(player.skillCD[n-1]>0) return;
  switch(n){
@@ -362,12 +266,12 @@ function useSkill(n){
  updateUI();
 }
 
-/* ===== QUESTS ===== */
+// ===== QUESTS =====
 function interactNPC(n){
  currentQuest=n.quest;
  if(currentQuest.completed){log("✅ Ви вже виконали цей квест"); return;}
  showOnly("questTab");
- questText.textContent=currentQuest.text+" (Прогрес: "+currentQuest.progress+"/"+currentQuest.target+")";
+ document.getElementById("questText").textContent=currentQuest.text+" (Прогрес: "+currentQuest.progress+"/"+currentQuest.target+")";
 }
 function updateQuestProgress(){
  if(!currentQuest || currentQuest.completed) return;
@@ -388,9 +292,9 @@ function completeQuest(){
  else log("⚠ Квест ще не завершено");
 }
 
-/* ===== SHOP ===== */
+// ===== SHOP =====
 function openShop(s){
- currentShop=s; showOnly("shopTab"); shopItems.innerHTML="";
+ currentShop=s; showOnly("shopTab"); const shopItems=document.getElementById("shopItems"); shopItems.innerHTML="";
  s.inventory.forEach(it=>{
    let btn=document.createElement("button");
    btn.textContent=it.name+" - "+it.price+"💰";
@@ -409,36 +313,37 @@ function buyItem(it){
 }
 function closeShop(){currentShop=null;showOnly("mapTab");drawMap();}
 
-/* ===== UI ===== */
+// ===== UI =====
 function updateUI(){
  let s=calcStats();
- hp.textContent=player.hp; maxhp.textContent=s.maxHp; maxhp2.textContent=s.maxHp;
- dmg.textContent=s.dmg; ap.textContent=player.ap; gold.textContent=player.gold;
- str.textContent=player.baseStr; crit.textContent=player.crit; dodge.textContent=player.dodge; block.textContent=player.block;
- level.textContent=player.level; xp.textContent=player.xp; xpToNext.textContent=player.xpToNext;
+ document.getElementById("hp").textContent=player.hp;
+ document.getElementById("maxhp").textContent=s.maxHp;
+ document.getElementById("maxhp2").textContent=s.maxHp;
+ document.getElementById("dmg").textContent=s.dmg;
+ document.getElementById("ap").textContent=player.ap;
+ document.getElementById("gold").textContent=player.gold;
+ document.getElementById("str").textContent=player.baseStr;
+ document.getElementById("crit").textContent=player.crit;
+ document.getElementById("dodge").textContent=player.dodge;
+ document.getElementById("block").textContent=player.block;
+ document.getElementById("level").textContent=player.level;
+ document.getElementById("xp").textContent=player.xp;
+ document.getElementById("xpToNext").textContent=player.xpToNext;
+
  for(let i=1;i<=3;i++){
    let btn=document.getElementById("skill"+i);
    if(player.skillCD[i-1]>0){btn.classList.add("disabled"); btn.textContent="CD "+player.skillCD[i-1];}
-   else btn.classList.remove("disabled"); if(i===1) btn.textContent="Сильний удар"; if(i===2) btn.textContent="Щит"; if(i===3) btn.textContent="Лікування";
+   else btn.classList.remove("disabled"); 
+   if(i===1) btn.textContent="Сильний удар"; 
+   if(i===2) btn.textContent="Щит"; 
+   if(i===3) btn.textContent="Лікування";
  }
  displayInventory();
  displayEquip();
 }
 
 function displayInventory(){
- inventory.innerHTML="";
+ const inv=document.getElementById("inventory");
+ inv.innerHTML="";
  items.forEach((it,index)=>{
-  let slot=document.createElement("div"); slot.className="slot "+(it.rarity||"white");
-  slot.textContent=it.name+"\n"+(it.dmg?("DMG:"+it.dmg+" "):"")+(it.hp?("HP:"+it.hp+" "):"")+(it.crit?("Crit:"+it.crit+" "):"");
-  slot.onclick=()=>equipItem(index);
-  inventory.appendChild(slot);
- });
-}
-
-function displayEquip(){
- equipSlots.innerHTML="";
- Object.keys(player.equip).forEach(k=>{
-  let slot=document.createElement("div"); slot.className="slot";
-  if(player.equip[k]) slot.textContent=player.equip[k].name;
-  else slot.textContent=k;
-  equipSlots
+  let slot=document.createElement("div
