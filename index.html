@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Browser RPG - Бій на карті</title>
+<title>Browser RPG - Мобільна карта</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}
-body{background:#1e222c;color:#e6e6e6;}
+body{margin:0;font-family:Arial;background:#1e222c;color:#e6e6e6;}
 #topMenu{display:flex;background:#151821;}
-#topMenu button{flex:1;padding:12px;background:none;color:#aaa;border:none;cursor:pointer;}
+#topMenu button{flex:1;padding:12px;color:#aaa;border:none;background:none;cursor:pointer;}
 #topMenu button.active{background:#30364a;color:#fff;}
 #game{display:flex;flex-direction:row;height:calc(100vh - 48px);}
 #leftPanel,#rightPanel{width:260px;background:#151821;padding:10px;overflow-y:auto;}
-#centerPanel{flex:1;background:#262b3d;padding:10px;overflow-y:auto;}
-#map{display:grid;grid-template-columns:repeat(7,60px);gap:4px;justify-content:center;margin-bottom:10px;}
-.cell{width:60px;height:60px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;text-align:center;}
+#centerPanel{flex:1;background:#262b3d;padding:10px;overflow:auto;}
+#map{display:grid;grid-template-columns:repeat(7,1fr);grid-gap:4px;width:100%;max-width:420px;margin:0 auto;}
+.cell{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:6px;cursor:pointer;}
 .player{background:#4caf50;}
 .enemy.berzerk{background:#8e2a2a;}
 .enemy.tank{background:#2a5b8e;}
@@ -28,17 +27,12 @@ body{background:#1e222c;color:#e6e6e6;}
 .blue{background:#2a5b8e;}
 .purple{background:#6a2a8e;}
 .gold{background:#ffd700;color:#000;font-weight:bold;}
-button.action{width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:pointer;}
-.skillBtn{width:32%;margin-right:1%;margin-bottom:4px;padding:8px;font-size:14px;background:#444;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+button.action{width:100%;padding:10px;margin-top:6px;font-size:16px;cursor:pointer;}
+.skillBtn{width:32%;margin:1%;padding:6px;background:#444;color:#fff;border:none;border-radius:5px;cursor:pointer;}
 .skillBtn.disabled{opacity:0.4;pointer-events:none;}
-#battle{display:none;margin-top:10px;padding:10px;background:#151821;border-radius:8px;}
-#battle p{margin:4px 0;}
-@media(max-width:900px){
-  #game{flex-direction:column;}
-  #leftPanel,#rightPanel{width:100%;height:auto;}
-  #centerPanel{width:100%;height:auto;}
-  .skillBtn{width:30%;margin:2px 1% 2px 0;}
-}
+#battle{display:none;background:#151821;padding:8px;border-radius:6px;margin-top:10px;}
+#log p{margin:2px 0;}
+@media(max-width:900px){#game{flex-direction:column;}#leftPanel,#rightPanel{width:100%;height:auto;}}
 </style>
 </head>
 <body>
@@ -102,26 +96,21 @@ button.action{width:100%;padding:12px;margin-top:10px;font-size:18px;cursor:poin
 </div>
 
 <script>
-// ===== PLAYER =====
+// ==== PLAYER ====
 let player={baseStr:4,baseHp:25,hp:25,crit:10,dodge:10,block:0,gold:50,level:1,xp:0,xpToNext:20,equip:{weapon:null,shield:null,amulet:null},skillCD:[0,0,0],ap:3};
 let items=[];
 
-// ===== ENEMIES =====
+// ==== ENEMIES / NPC / SHOPS ====
 const enemyTypes={berzerk:{icon:"🪓",class:"berzerk"},tank:{icon:"🛡",class:"tank"},archer:{icon:"🏹",class:"archer"},mage:{icon:"🔮",class:"mage"}};
 let enemies=[{pos:10,type:"berzerk",hp:18,dmg:4,xp:10,level:1},{pos:15,type:"tank",hp:25,dmg:3,xp:12,level:2},{pos:20,type:"archer",hp:16,dmg:5,xp:10,level:2},{pos:30,type:"mage",hp:14,dmg:4,xp:12,level:3}];
-let npcs=[{pos:5,name:"Квестодавець",quest:{text:"Вбий 2 ворогів",progress:0,target:2,reward:{xp:15,gold:10,item:"Амулет"},completed:false}}];
-let shops=[{pos:3,name:"Торговець",inventory:[{name:"Меч",type:"weapon",dmg:5,price:30},{name:"Щит",type:"shield",hp:10,block:30,price:25}]}];
-
+let npcs=[{pos:5,name:"Квестодавець"}];
+let shops=[{pos:3,name:"Торговець"}];
 let size=7,pos=24,currentEnemy=null;
 
-// ===== STATS =====
-function calcStats(){
- let maxHp=player.baseHp,dmg=player.baseStr,crit=player.crit,dodge=player.dodge,block=player.block;
- Object.values(player.equip).forEach(i=>{if(!i)return;if(i.hp)maxHp+=i.hp;if(i.dmg)dmg+=i.dmg;if(i.block)block+=i.block;if(i.dodge)dodge+=i.dodge;});
- return{maxHp,dmg,crit,dodge,block};
-}
+// ==== STATS ====
+function calcStats(){let maxHp=player.baseHp,dmg=player.baseStr,crit=player.crit,dodge=player.dodge,block=player.block;Object.values(player.equip).forEach(i=>{if(!i)return;if(i.hp)maxHp+=i.hp;if(i.dmg)dmg+=i.dmg;if(i.block)block+=i.block;if(i.dodge)dodge+=i.dodge;});return{maxHp,dmg,crit,dodge,block};}
 
-// ===== MAP =====
+// ==== MAP ====
 function drawMap(){
  const mapEl=document.getElementById("map");
  mapEl.innerHTML="";
@@ -141,41 +130,42 @@ function drawMap(){
  updateUI();
 }
 
-// ===== MOVE =====
+// ==== MOVE ====
 function move(to){if(player.ap<=0)return;let d=Math.abs(to-pos);if(d===1||d===size){pos=to;player.ap--;drawMap();}}
 
-// ===== BATTLE =====
+// ==== BATTLE ====
 function startBattle(enemy){currentEnemy=enemy;document.getElementById("battle").style.display="block";document.getElementById("enemyName").textContent=enemyTypes[enemy.type].icon+" "+enemy.type.toUpperCase();updateBattle();log("⚔ Бій почався!");}
 function attack(){
  if(!currentEnemy)return;
  let ps=calcStats();let dmg=ps.dmg;if(Math.random()*100<ps.crit)dmg=Math.floor(dmg*2);dmg=Math.floor(dmg);
  currentEnemy.hp-=dmg;log("Ти вдарив на "+dmg);
- if(currentEnemy.hp<=0){winBattle(); return;}
+ if(currentEnemy.hp<=0){winBattle();return;}
  let edmg=currentEnemy.dmg;player.hp-=edmg;log("Ворог завдав "+edmg);
  updateBattle();
 }
 function updateBattle(){document.getElementById("bPHP").textContent=player.hp;document.getElementById("bMaxHP").textContent=calcStats().maxHp;document.getElementById("bEHP").textContent=currentEnemy?currentEnemy.hp:0;updateUI();}
 function winBattle(){log("☠ Ворог переможений!");player.gold+=5;player.xp+=currentEnemy.xp;enemies=enemies.filter(e=>e!==currentEnemy);currentEnemy=null;document.getElementById("battle").style.display="none";drawMap();checkLevelUp();}
 
-// ===== LOG =====
+// ==== LOG ====
 function log(msg){const l=document.getElementById("log");let p=document.createElement("p");p.textContent=msg;l.appendChild(p);l.scrollTop=l.scrollHeight;}
 
-// ===== SKILLS =====
+// ==== SKILLS ====
 function useSkill(n){if(player.skillCD[n-1]>0)return;switch(n){case 1:if(currentEnemy){let dmg=Math.floor(calcStats().dmg*1.5);currentEnemy.hp-=dmg;log("💥 Сильний удар: "+dmg);}break;case 2:player.block+=20;log("🛡 Використано Щит +20% блок");break;case 3:let heal=Math.floor(calcStats().maxHp*0.3);player.hp=Math.min(player.hp+heal,calcStats().maxHp);log("💚 Лікування: "+heal);}player.skillCD[n-1]=2;updateBattle();updateUI();}
 
-// ===== INVENTORY =====
-function displayInventory(){const inv=document.getElementById("inventory");inv.innerHTML="";items.forEach((it,index)=>{let slot=document.createElement("div");slot.className="slot "+(it.rarity||"white");slot.textContent=it.name+"\n"+(it.dmg?("DMG:"+it.dmg+" "):"")+(it.hp?("HP:"+it.hp+" "):"")+(it.crit?("Crit:"+it.crit+" "):"");slot.onclick=()=>equipItem(index);inv.appendChild(slot);});}
+// ==== INVENTORY ====
+function displayInventory(){const inv=document.getElementById("inventory");inv.innerHTML="";items.forEach((it,index)=>{let slot=document.createElement("div");slot.className="slot "+(it.rarity||"white");slot.textContent=it.name;slot.onclick=()=>equipItem(index);inv.appendChild(slot);});}
 function displayEquip(){const eq=document.getElementById("equipSlots");eq.innerHTML="";Object.keys(player.equip).forEach(k=>{let slot=document.createElement("div");slot.className="slot";slot.textContent=player.equip[k]?player.equip[k].name:k;eq.appendChild(slot);});}
 function equipItem(index){let it=items[index];if(!it)return;player.equip.weapon=it;items.splice(index,1);updateUI();}
 
-// ===== TABS =====
+// ==== TABS ====
 function showTab(tabId,btn){['mapTab','invTab','charTab'].forEach(t=>document.getElementById(t).style.display='none');document.getElementById(tabId).style.display='block';document.querySelectorAll('#topMenu button').forEach(b=>b.classList.remove('active'));if(btn) btn.classList.add('active');}
 
-// ===== LEVEL UP =====
+// ==== LEVEL UP ====
 function checkLevelUp(){while(player.xp>=player.xpToNext){player.xp-=player.xpToNext;player.level++;player.xpToNext=Math.floor(player.xpToNext*1.5);player.baseStr+=1;player.baseHp+=5;player.hp=calcStats().maxHp;log("🌟 Рівень підвищено! Тепер рівень "+player.level);}}
 
-// ===== INIT =====
+// ==== INIT ====
 window.onload=function(){player.hp=calcStats().maxHp;drawMap();updateUI();}
+function updateUI(){let s=calcStats();document.getElementById("hp").textContent=player.hp;document.getElementById("maxhp").textContent=s.maxHp;document.getElementById("maxhp2").textContent=s.maxHp;document.getElementById("dmg").textContent=s.dmg;document.getElementById("ap").textContent=player.ap;document.getElementById("gold").textContent=player.gold;document.getElementById("str").textContent=player.baseStr;document.getElementById("crit").textContent=player.crit;document.getElementById("dodge").textContent=player.dodge;document.getElementById("block").textContent=player.block;document.getElementById("level").textContent=player.level;document.getElementById("xp").textContent=player.xp;document.getElementById("xpToNext").textContent=player.xpToNext;displayInventory();displayEquip();}
 </script>
 
 </body>
