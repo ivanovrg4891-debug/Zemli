@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RPG GUI з картою</title>
+<title>RPG GUI з картою та місцем для картинок</title>
 <style>
 body {
   margin: 0;
@@ -38,9 +38,7 @@ body {
   display: none;
   margin-top: 10px;
 }
-#charPanel {
-  display: block;
-}
+#charPanel { display: block; }
 .stats {
   background: #2c2f42;
   padding: 10px;
@@ -68,9 +66,7 @@ body {
 }
 .slot img { max-width: 50px; max-height: 50px; }
 
-#mapPanel {
-  margin-top: 10px;
-}
+#mapPanel { margin-top: 10px; }
 #map {
   display: grid;
   grid-template-columns: repeat(10, 40px);
@@ -158,9 +154,9 @@ function showTab(tabId, btn){
 // === Гравець та об'єкти карти ===
 const mapSize = 10;
 let player = {x:3, y:3};
-const enemies = [{x:1,y:1},{x:7,y:4},{x:5,y:8}];
-const npcs = [{x:0,y:5}];
-const shops = [{x:9,y:0}];
+const enemies = [{x:1,y:1, img: ''},{x:7,y:4, img: ''},{x:5,y:8, img: ''}];
+const npcs = [{x:0,y:5, img: ''}];
+const shops = [{x:9,y:0, img: ''}];
 
 // Створення сітки карти
 const mapDiv = document.getElementById('map');
@@ -183,10 +179,26 @@ function drawMap(){
     c.textContent = '';
     const x = parseInt(c.dataset.x);
     const y = parseInt(c.dataset.y);
-    if(x===player.x && y===player.y){ c.classList.add('player'); c.textContent='🙂'; }
-    else if(enemies.some(e=>e.x===x && e.y===y)){ c.classList.add('enemy'); c.textContent='⚔'; }
-    else if(npcs.some(n=>n.x===x && n.y===y)){ c.classList.add('npc'); c.textContent='🤵'; }
-    else if(shops.some(s=>s.x===x && s.y===y)){ c.classList.add('shop'); c.textContent='💰'; }
+
+    if(x===player.x && y===player.y){
+      c.classList.add('player');
+      if(player.img){ 
+        const img = document.createElement('img'); img.src = player.img; img.style.width='30px'; img.style.height='30px';
+        c.appendChild(img);
+      } else { c.textContent='🙂'; }
+    } else if(enemies.some(e=>e.x===x && e.y===y)){
+      c.classList.add('enemy');
+      const e = enemies.find(e=>e.x===x && e.y===y);
+      if(e.img){ const img=document.createElement('img'); img.src=e.img; c.appendChild(img); } else { c.textContent='⚔'; }
+    } else if(npcs.some(n=>n.x===x && n.y===y)){
+      c.classList.add('npc');
+      const n = npcs.find(n=>n.x===x && n.y===y);
+      if(n.img){ const img=document.createElement('img'); img.src=n.img; c.appendChild(img); } else { c.textContent='🤵'; }
+    } else if(shops.some(s=>s.x===x && s.y===y)){
+      c.classList.add('shop');
+      const s = shops.find(s=>s.x===x && s.y===y);
+      if(s.img){ const img=document.createElement('img'); img.src=s.img; c.appendChild(img); } else { c.textContent='💰'; }
+    }
   });
 }
 
@@ -231,5 +243,6 @@ window.onload = function(){
   updateUI();
 }
 </script>
+
 </body>
 </html>
